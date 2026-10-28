@@ -1,24 +1,540 @@
-# Compiled class file
-*.class
+```react
+import React, { useState, useEffect, useMemo, useCallback, memo, lazy, Suspense } from 'react';
+import {
+  ShoppingBag, Search, Shield, MapPin, Phone, Clock, ChevronRight, X, Plus,
+  Minus, Check, AlertCircle, Trash2, Edit, CheckCircle, ExternalLink,
+  Menu as MenuIcon, Lock, ArrowRight, Settings, Package,
+  TrendingUp, RefreshCw, MessageCircle, Flame, Leaf, Utensils,
+  Navigation, Sparkles, LogOut, CheckSquare, Eye, Key, Filter, Layers
+} from 'lucide-react';
 
-# Log file
-*.log
+// --- INITIAL BUSINESS CONFIGURATION ---
+const INITIAL_RESTAURANT_INFO = {
+  name: "Hotel Muntaj",
+  branch: "H B Colony / MVP Colony, Visakhapatnam",
+  address: "P8VH+M5V, H B Colony, Visakhapatnam, Andhra Pradesh 530022, India",
+  phone: "+91 97048 09898",
+  phoneDigits: "919704809898",
+  hours: "11:30 AM – 10:00 PM",
+  hoursVerified: false,
+  announcement: "Welcome to Hotel Muntaj! Authentic Hyderabadi & Andhra Biryani in Visakhapatnam.",
+  announcementActive: true,
+  deliveryEnabled: true,
+  pickupEnabled: true,
+  dineInEnabled: true,
+  deliveryFee: 40,
+  gstRate: 5,
+  minOrderAmount: 150,
+  mapsUrl: "https://www.google.com/maps/search/?api=1&query=Hotel+Muntaj+H+B+Colony+Visakhapatnam"
+};
 
-# BlueJ files
-*.ctxt
+const INITIAL_MENU_ITEMS = [
+  {
+    id: "m1",
+    name: "Chicken Fry Piece Biryani",
+    category: "Biryani",
+    price: 290,
+    isVeg: false,
+    isPopular: true,
+    isFeatured: true,
+    isAvailable: true,
+    spiceLevel: "Medium",
+    description: "Signature Vizag style spiced tender chicken fried pieces served over aromatic basmati dum rice.",
+    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m2",
+    name: "Chicken Dum Biryani",
+    category: "Biryani",
+    price: 260,
+    isVeg: false,
+    isPopular: true,
+    isFeatured: true,
+    isAvailable: true,
+    spiceLevel: "Medium",
+    description: "Classic slow-cooked Hyderabadi style chicken dum biryani infused with saffron, mint, and secret whole spices.",
+    image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m3",
+    name: "Special Chicken Biryani",
+    category: "Biryani",
+    price: 330,
+    isVeg: false,
+    isPopular: true,
+    isFeatured: true,
+    isAvailable: true,
+    spiceLevel: "Spicy",
+    description: "Chef's special Biryani topped with boneless chicken fry, boiled egg, and extra aromatics.",
+    image: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m4",
+    name: "Mushroom Biryani",
+    category: "Biryani",
+    price: 240,
+    isVeg: true,
+    isPopular: false,
+    isFeatured: true,
+    isAvailable: true,
+    spiceLevel: "Medium",
+    description: "Juicy button mushrooms marinated in rich spices layered with fragrant long-grain basmati rice.",
+    image: "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m5",
+    name: "Veg Biryani",
+    category: "Biryani",
+    price: 210,
+    isVeg: true,
+    isPopular: false,
+    isFeatured: true,
+    isAvailable: true,
+    spiceLevel: "Mild",
+    description: "Garden fresh vegetables cooked with delicate spices, ghee, and herbs in traditional dum style.",
+    image: "https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m6",
+    name: "Chicken Lollipop (6 Pcs)",
+    category: "Starters",
+    price: 270,
+    isVeg: false,
+    isPopular: true,
+    isFeatured: true,
+    isAvailable: true,
+    spiceLevel: "Spicy",
+    description: "Crispy fried frenched chicken drumettes tossed in a tangy Indo-Chinese garlic sauce.",
+    image: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m7",
+    name: "Mutton Dum Biryani",
+    category: "Biryani",
+    price: 390,
+    isVeg: false,
+    isPopular: true,
+    isFeatured: false,
+    isAvailable: true,
+    spiceLevel: "Medium",
+    description: "Tender pieces of goat meat marinated overnight, dum-cooked with premium basmati rice.",
+    image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m8",
+    name: "Paneer 65",
+    category: "Starters",
+    price: 230,
+    isVeg: true,
+    isPopular: true,
+    isFeatured: false,
+    isAvailable: true,
+    spiceLevel: "Spicy",
+    description: "Deep-fried cottage cheese cubes tempered with curry leaves, green chilies, and yogurt sauce.",
+    image: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m9",
+    name: "Apollo Fish Fry",
+    category: "Starters",
+    price: 320,
+    isVeg: false,
+    isPopular: true,
+    isFeatured: false,
+    isAvailable: true,
+    spiceLevel: "Medium",
+    description: "Boneless fish fillets battered, fried, and tossed in spicy South Indian red pepper sauce.",
+    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m10",
+    name: "Butter Chicken Curry",
+    category: "Indian Curries",
+    price: 280,
+    isVeg: false,
+    isPopular: true,
+    isFeatured: false,
+    isAvailable: true,
+    spiceLevel: "Mild",
+    description: "Smoky tandoori chicken cooked in a smooth, velvety tomato and cashew nut gravy.",
+    image: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m11",
+    name: "Kadai Paneer Curry",
+    category: "Indian Curries",
+    price: 240,
+    isVeg: true,
+    isPopular: false,
+    isFeatured: false,
+    isAvailable: true,
+    spiceLevel: "Medium",
+    description: "Fresh cottage cheese tossed with bell peppers and freshly ground kadai spice masala.",
+    image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m12",
+    name: "Chicken Soft Noodles",
+    category: "Chinese",
+    price: 210,
+    isVeg: false,
+    isPopular: false,
+    isFeatured: false,
+    isAvailable: true,
+    spiceLevel: "Mild",
+    description: "Wok-tossed noodles with shredded chicken, crisp vegetables, and dark soy sauce.",
+    image: "https://images.unsplash.com/photo-1612927601601-6638404737ce?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m13",
+    name: "Veg Fried Rice",
+    category: "Chinese",
+    price: 180,
+    isVeg: true,
+    isPopular: false,
+    isFeatured: false,
+    isAvailable: true,
+    spiceLevel: "Mild",
+    description: "Classic stir-fried basmati rice with finely diced carrots, beans, and spring onions.",
+    image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m14",
+    name: "Butter Naan",
+    category: "Bread & Extras",
+    price: 50,
+    isVeg: true,
+    isPopular: true,
+    isFeatured: false,
+    isAvailable: true,
+    spiceLevel: "Mild",
+    description: "Soft leavened flatbread baked in a clay tandoor oven, brushed with pure butter.",
+    image: "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=500&auto=format&fit=crop&q=75"
+  },
+  {
+    id: "m15",
+    name: "Gulab Jamun (2 Pcs)",
+    category: "Beverages & Extras",
+    price: 80,
+    isVeg: true,
+    isPopular: true,
+    isFeatured: false,
+    isAvailable: true,
+    spiceLevel: "Mild",
+    description: "Deep-fried milk dumplings soaked in cardamom infused warm sugar syrup.",
+    image: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=500&auto=format&fit=crop&q=75"
+  }
+];
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+const INITIAL_ORDERS = [
+  {
+    id: "MUNT-9041",
+    date: new Date(Date.now() - 25 * 60000).toISOString(),
+    customerName: "Srinivas Rao",
+    phone: "+91 98480 12345",
+    orderType: "Delivery",
+    address: "Flat 302, Green Valley Apts, MVP Colony Sector 4, Visakhapatnam",
+    items: [
+      { id: "m1", name: "Chicken Fry Piece Biryani", price: 290, quantity: 2, spiceLevel: "Medium", addEgg: true, unitPrice: 310 },
+      { id: "m6", name: "Chicken Lollipop (6 Pcs)", price: 270, quantity: 1, spiceLevel: "Spicy", unitPrice: 270 }
+    ],
+    subtotal: 890,
+    deliveryFee: 40,
+    gst: 44.5,
+    total: 974.5,
+    status: "Preparing",
+    paymentMethod: "Cash on Delivery",
+    instructions: "Please deliver near the HP Petrol Pump landmark."
+  }
+];
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+// --- MEMOIZED DISH CARD COMPONENT ---
+const DishCard = memo(({ item, onAddToCart, onCustomiseItem }) => {
+  return (
+    <div className="bg-[#161619] rounded-2xl border border-neutral-800/80 overflow-hidden hover:border-amber-500/40 transition-all duration-300 flex flex-col justify-between group">
+      <div>
+        <div className="relative h-48 bg-neutral-900 overflow-hidden">
+          <img
+            src={item.image}
+            alt={item.name}
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#161619] via-transparent to-black/40" />
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+          <div className="absolute top-3 left-3 flex items-center space-x-2">
+            <span className={`w-4 h-4 rounded-full border-2 p-0.5 flex items-center justify-center bg-black/60 ${
+              item.isVeg ? 'border-emerald-500' : 'border-rose-500'
+            }`}>
+              <span className={`w-2 h-2 rounded-full ${item.isVeg ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+            </span>
+            {item.isPopular && (
+              <span className="bg-amber-500 text-black font-bold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                Bestseller
+              </span>
+            )}
+          </div>
+
+          {!item.isAvailable && (
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-xs flex items-center justify-center">
+              <span className="text-xs font-bold text-rose-400 uppercase tracking-widest border border-rose-500/40 px-3 py-1 rounded">
+                Sold Out Today
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="p-5 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-base font-bold font-serif text-white group-hover:text-amber-400 transition">
+              {item.name}
+            </h3>
+            <span className="text-[11px] bg-neutral-800/80 px-2 py-0.5 rounded text-neutral-400 border border-neutral-700/60 shrink-0">
+              {item.spiceLevel}
+            </span>
+          </div>
+          <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed">
+            {item.description}
+          </p>
+        </div>
+      </div>
+
+      <div className="px-5 pb-5 pt-2 flex items-center justify-between border-t border-neutral-800/60">
+        <div>
+          <span className="text-[10px] text-neutral-500 block uppercase">Price</span>
+          <span className="text-lg font-bold text-amber-400">₹{item.price}</span>
+        </div>
+
+        {item.isAvailable ? (
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => onCustomiseItem(item)}
+              className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-xs font-semibold border border-neutral-700 transition"
+              title="Customize Spice & Extras"
+            >
+              Custom
+            </button>
+            <button
+              onClick={() => onAddToCart(item)}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs shadow-md transition flex items-center space-x-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add</span>
+            </button>
+          </div>
+        ) : (
+          <button disabled className="px-3 py-1.5 rounded-xl bg-neutral-800 text-neutral-500 text-xs font-medium cursor-not-allowed">
+            Unavailable
+          </button>
+        )}
+      </div>
+    </div>
+  );
+});
+
+// --- MAIN APPLICATION COMPONENT ---
+export default function App() {
+  // State Initialization
+  const [restaurant, setRestaurant] = useState(() => {
+    const saved = localStorage.getItem('muntaj_settings');
+    return saved ? JSON.parse(saved) : INITIAL_RESTAURANT_INFO;
+  });
+
+  const [menuItems, setMenuItems] = useState(() => {
+    const saved = localStorage.getItem('muntaj_menu');
+    return saved ? JSON.parse(saved) : INITIAL_MENU_ITEMS;
+  });
+
+  const [orders, setOrders] = useState(() => {
+    const saved = localStorage.getItem('muntaj_orders');
+    return saved ? JSON.parse(saved) : INITIAL_ORDERS;
+  });
+
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem('muntaj_cart');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Passcode Security Configuration (Never expose passcode in UI)
+  const [adminPasscodeHash, setAdminPasscodeHash] = useState(() => {
+    return localStorage.getItem('muntaj_admin_code') || (import.meta.env?.VITE_ADMIN_PASSCODE || "admin123");
+  });
+
+  // Navigation & UI States
+  const [activeTab, setActiveTab] = useState('home');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [trackedOrderId, setTrackedOrderId] = useState(null);
+
+  // Menu Filters
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isVegOnly, setIsVegOnly] = useState(false);
+  const [priceSort, setPriceSort] = useState('default');
+
+  // Customization Modal
+  const [customizingItem, setCustomizingItem] = useState(null);
+  const [selectedSpice, setSelectedSpice] = useState('Medium');
+  const [addExtraEgg, setAddExtraEgg] = useState(false);
+  const [addExtraRaita, setAddExtraRaita] = useState(false);
+  const [itemNote, setItemNote] = useState('');
+
+  // Admin Auth State
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return sessionStorage.getItem('muntaj_admin_auth') === 'true';
+  });
+  const [inputPasscode, setInputPasscode] = useState('');
+  const [adminAuthError, setAdminAuthError] = useState('');
+  const [adminActiveTab, setAdminActiveTab] = useState('orders');
+  const [editingMenuItem, setEditingMenuItem] = useState(null);
+
+  // Policy Modal State
+  const [activePolicyModal, setActivePolicyModal] = useState(null);
+
+  // Persistence Effects
+  useEffect(() => {
+    localStorage.setItem('muntaj_settings', JSON.stringify(restaurant));
+  }, [restaurant]);
+
+  useEffect(() => {
+    localStorage.setItem('muntaj_menu', JSON.stringify(menuItems));
+  }, [menuItems]);
+
+  useEffect(() => {
+    localStorage.setItem('muntaj_orders', JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem('muntaj_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  // Optimized Cart Callbacks
+  const handleAddToCart = useCallback((item, options = {}) => {
+    const cartItemId = `${item.id}-${options.spiceLevel || 'Medium'}-${options.addEgg ? 'egg' : 'noegg'}-${options.addRaita ? 'raita' : 'noraita'}`;
+    const extraPrice = (options.addEgg ? 20 : 0) + (options.addRaita ? 15 : 0);
+    const unitPrice = item.price + extraPrice;
+
+    setCart(prev => {
+      const existing = prev.find(i => i.cartItemId === cartItemId);
+      if (existing) {
+        return prev.map(i => i.cartItemId === cartItemId ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, {
+        cartItemId,
+        id: item.id,
+        name: item.name,
+        basePrice: item.price,
+        unitPrice,
+        quantity: 1,
+        isVeg: item.isVeg,
+        spiceLevel: options.spiceLevel || 'Medium',
+        addEgg: !!options.addEgg,
+        addRaita: !!options.addRaita,
+        note: options.note || '',
+        image: item.image
+      }];
+    });
+    setCustomizingItem(null);
+    setIsCartOpen(true);
+  }, []);
+
+  const updateCartQuantity = useCallback((cartItemId, delta) => {
+    setCart(prev => prev.map(item => {
+      if (item.cartItemId === cartItemId) {
+        const newQty = item.quantity + delta;
+        return newQty > 0 ? { ...item, quantity: newQty } : null;
+      }
+      return item;
+    }).filter(Boolean));
+  }, []);
+
+  const removeFromCart = useCallback((cartItemId) => {
+    setCart(prev => prev.filter(item => item.cartItemId !== cartItemId));
+  }, []);
+
+  // Cart Totals
+  const cartSubtotal = useMemo(() => {
+    return cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+  }, [cart]);
+
+  const cartGst = useMemo(() => {
+    return Math.round((cartSubtotal * restaurant.gstRate / 100) * 100) / 100;
+  }, [cartSubtotal, restaurant.gstRate]);
+
+  const cartTotal = useMemo(() => {
+    if (cart.length === 0) return 0;
+    return cartSubtotal + cartGst + (restaurant.deliveryEnabled ? restaurant.deliveryFee : 0);
+  }, [cartSubtotal, cartGst, restaurant]);
+
+  // Categories Calculation
+  const categories = useMemo(() => {
+    const set = new Set(menuItems.map(i => i.category));
+    return ['All', 'Popular', ...Array.from(set)];
+  }, [menuItems]);
+
+  // Filtered Menu Items
+  const filteredMenuItems = useMemo(() => {
+    return menuItems.filter(item => {
+      const matchesCategory = selectedCategory === 'All'
+        ? true
+        : selectedCategory === 'Popular'
+          ? item.isPopular
+          : item.category === selectedCategory;
+
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            item.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesVeg = isVegOnly ? item.isVeg : true;
+
+      return matchesCategory && matchesSearch && matchesVeg;
+    }).sort((a, b) => {
+      if (priceSort === 'low-high') return a.price - b.price;
+      if (priceSort === 'high-low') return b.price - a.price;
+      return 0;
+    });
+  }, [menuItems, selectedCategory, searchQuery, isVegOnly, priceSort]);
+
+  // Admin Auth Handler
+  const handleAdminLogin = useCallback((e) => {
+    e.preventDefault();
+    if (inputPasscode === adminPasscodeHash) {
+      setIsAdminAuthenticated(true);
+      sessionStorage.setItem('muntaj_admin_auth', 'true');
+      setAdminAuthError('');
+      setInputPasscode('');
+    } else {
+      setAdminAuthError('Invalid administrator credentials.');
+    }
+  }, [inputPasscode, adminPasscodeHash]);
+
+  const handleAdminLogout = useCallback(() => {
+    setIsAdminAuthenticated(false);
+    sessionStorage.removeItem('muntaj_admin_auth');
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-[#0d0d0f] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-amber-500 selection:text-black">
+      
+      {/* 1. ANNOUNCEMENT BAR */}
+      {restaurant.announcementActive && (
+        <div className="bg-gradient-to-r from-amber-950 via-orange-900 to-amber-950 text-amber-200 px-4 py-2 text-xs font-medium border-b border-amber-800/40 flex items-center justify-between shadow-inner">
+          <div className="flex items-center space-x-2 mx-auto text-center truncate">
+            <Sparkles className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+            <span className="truncate">{restaurant.announcement}</span>
+            <span className="hidden md:inline-block text-[10px] bg-amber-900/60 text-amber-300 px-2 py-0.5 rounded border border-amber-700/50">
+              H B Colony Branch
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* 2. HEADER & NAVIGATION */}
+      <header className="sticky top-0 z-40 bg-[#121215]/90 backdrop-blur-md border-b border-neutral-800/80 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          
+          {/* Logo */}
+          <button 
+            onClick={() => setActiveTab('home')}
+            className="flex items-center space-x-3 text-left focus:outline-none group"
+          >
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 p-0.5 shadow-lg group-hover:scale-105 transi
